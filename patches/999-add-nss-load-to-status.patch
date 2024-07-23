@@ -51,5 +51,5 @@ index 45dd7d7d9e..987081970c 100644
  			"file": {
 +				"/sys/kernel/debug/qca-nss-drv/stats/cpu_load_ubi": [ "read" ],
  				"/bin/dmesg -r": [ "exec" ],
- 				"/sbin/logread": [ "stat" ],
- 				"/sbin/logread -e ^": [ "exec" ],
+ 				"/usr/libexec/syslog-wrapper": [ "exec" ]
+ 			},
