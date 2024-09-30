@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
   schedule:
-    - cron: "0 */2 * * *"
+    - cron: "19 4 * * *"
 
 env:
   REMOTE_REPOSITORY: qosmio/openwrt-ipq
@@ -19,11 +19,6 @@ jobs:
   check_commits:
     name: Check for new commits
     runs-on: ubuntu-24.04
-    outputs:
-      new_commits: ${{ steps.check_new_commits.outputs.new_commits }}
-      latest_commit_sha: ${{ steps.check_new_commits.outputs.latest_commit_sha }}
-      nss_packages_repo_new_commits: ${{ steps.check_nss_packages_repo_new_commits.outputs.new_commits }}
-      nss_packages_repo_latest_commit_sha: ${{ steps.check_nss_packages_repo_new_commits.outputs.latest_commit_sha }}
     steps:
       - name: Check for new commits
         id: check_new_commits
@@ -39,6 +34,11 @@ jobs:
           nss_packages_repo_last_built_commit_sha=$(curl -sL "https://api.github.com/repos/${{ github.repository }}/releases/latest" | jq -r '.body' | grep -oP 'NSS Packages Commit: \K\w+' || echo '')
           echo "new_commits=$([[ "$nss_packages_repo_latest_commit_sha" != "$nss_packages_repo_last_built_commit_sha" ]] && echo "true" || echo "false")" >> $GITHUB_OUTPUT
           echo "latest_commit_sha=$nss_packages_repo_latest_commit_sha" >> $GITHUB_OUTPUT
+    outputs:
+      new_commits: ${{ steps.check_new_commits.outputs.new_commits }}
+      latest_commit_sha: ${{ steps.check_new_commits.outputs.latest_commit_sha }}
+      nss_packages_repo_new_commits: ${{ steps.check_nss_packages_repo_new_commits.outputs.new_commits }}
+      nss_packages_repo_latest_commit_sha: ${{ steps.check_nss_packages_repo_new_commits.outputs.latest_commit_sha }}
 
   build:
     name: Build OpenWrt
@@ -116,7 +116,6 @@ jobs:
           tag_name: ${{ env.RELEASE_PREFIX }}-${{ env.RELEASE_DATE }}
           name: Updated prebuilt images ${{ env.RELEASE_DATE }}
           body: |
-            Updated prebuilt images for ${{ env.RELEASE_DATE }}
             Build Commit: ${{ needs.check_commits.outputs.latest_commit_sha }}
             NSS Packages Commit: ${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}
       - name: Clean up old releases
