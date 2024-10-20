@@ -105,8 +105,6 @@ jobs:
         with:
           name: ipq807x-images
           path: firmware
-      - name: Display structure of downloaded files
-        run: ls -R
       - name: Get current date
         run: echo "RELEASE_DATE=$(date +%F)" >> $GITHUB_ENV
       - name: Create release
