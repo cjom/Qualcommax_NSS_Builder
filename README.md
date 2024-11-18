@@ -33,7 +33,7 @@ The project utilizes a custom configuration file [`ax3600.config`](ax3600.config
 
 Additionally, the `uci` commands in the "Quality-of-Life Enhancements" section are used to fine-tune the wireless and network settings for improved performance and functionality. Refer to the [999-QOL_config](https://github.com/JuliusBairaktaris/Qualcommax_NSS_Builder/blob/main/files/etc/uci-defaults/999-QOL_config) for the specific configuration. 
 
-This fork removes banIP and adds the following packages:
+This fork removes banIP, MESH support and adds the following packages:
 - **Wireguard VPN**
 - **Policy-Based Routing**
 - **AdBlock Fast**
