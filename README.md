@@ -33,6 +33,14 @@ The project utilizes a custom configuration file [`ax3600.config`](ax3600.config
 
 Additionally, the `uci` commands in the "Quality-of-Life Enhancements" section are used to fine-tune the wireless and network settings for improved performance and functionality. Refer to the [999-QOL_config](https://github.com/JuliusBairaktaris/Qualcommax_NSS_Builder/blob/main/files/etc/uci-defaults/999-QOL_config) for the specific configuration. 
 
+This fork removes banIP, MESH support and adds the following packages:
+- **Wireguard VPN**
+- **Policy-Based Routing**
+- **AdBlock Fast**
+- **SQM**
+
+Additionally, the `uci` commands in the "Quality-of-Life Enhancements" section are used to fine-tune the wireless and network settings for improved performance and functionality. Refer to the [999-QOL_config](files/etc/uci-defaults/999-QOL_config) for the specific configuration. 
+
 ## SSH Hardening
 
 To enhance the security of SSH connections, the project includes a hardened SSH configuration. The configuration is derived from recommendations by [SSH-Audit](https://github.com/jtesta/ssh-audit) and the [BSI](https://www.bsi.bund.de/), it specifies strong key exchange algorithms, ciphers, message authentication codes (MACs), host key algorithms, and public key algorithms. This ensures that only secure and up-to-date algorithms are used for SSH communication.
