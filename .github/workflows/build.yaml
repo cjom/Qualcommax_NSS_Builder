@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
   push:
   schedule:
-    - cron: "0 */2 * * *"
+    - cron: "42 2 * * *"
 
 env:
   REMOTE_REPOSITORY: qosmio/openwrt-ipq
@@ -26,7 +26,6 @@ jobs:
     outputs:
       new_commits: ${{ steps.check_commits.outputs.new_commits }}
       latest_commit_sha: ${{ steps.check_commits.outputs.latest_commit_sha }}
-      nss_packages_repo_new_commits: ${{ steps.check_commits.outputs.nss_packages_repo_new_commits }}
       nss_packages_repo_latest_commit_sha: ${{ steps.check_commits.outputs.nss_packages_repo_latest_commit_sha }}
     steps:
       - name: Check for new commits in both repositories
@@ -37,43 +36,22 @@ jobs:
           # Fetch latest commits and release info
           latest_sha=$(gh api "repos/${{ env.REMOTE_REPOSITORY }}/commits/${{ env.REMOTE_BRANCH }}" --jq .sha)
           packages_sha=$(gh api "repos/${{ env.NSS_PACKAGES_REPOSITORY }}/commits/${{ env.NSS_PACKAGES_REPOSITORY_BRANCH }}" --jq .sha)
-          release_body=$(gh api "repos/${{ github.repository }}/releases/latest" --jq .body || echo "")
-
-          # Debug output
-          echo "Latest upstream commit: $latest_sha"
-          echo "Latest packages commit: $packages_sha"
-
-          # Default to assuming new commits if no release body exists
-          new_commits="true"
-          nss_new_commits="true"
-
-          if [ -n "$release_body" ]; then
-            echo "Release body found. Checking SHAs..."
-            if [[ "$release_body" == *"$latest_sha"* ]]; then
-              new_commits="false"
-              echo "Release body contains latest base commit: Yes"
-            else
-               echo "Release body contains latest base commit: No"
-            fi
-            if [[ "$release_body" == *"$packages_sha"* ]]; then
-              nss_new_commits="false"
-               echo "Release body contains latest packages commit: Yes"
-            else
-               echo "Release body contains latest packages commit: No"
-            fi
-          else
-            echo "No previous release body found, assuming new commits."
-          fi
-
-          echo "new_commits=$new_commits" >> "$GITHUB_OUTPUT"
-          echo "latest_commit_sha=$latest_sha" >> "$GITHUB_OUTPUT"
-          echo "nss_packages_repo_new_commits=$nss_new_commits" >> "$GITHUB_OUTPUT"
-          echo "nss_packages_repo_latest_commit_sha=$packages_sha" >> "$GITHUB_OUTPUT"
+          new_commits=$(gh api "repos/${{ github.repository }}/releases/latest" --jq .body | sed -z -e "s/.*\(${latest_sha}\).*\(${packages_sha}\).*/false/;t;ctrue")
+          # debug
+          echo "latest_commit_sha=$latest_sha"
+          echo "nss_packages_repo_latest_commit_sha=$packages_sha"
+          echo "new_commits=$new_commits"
+          # If release body does not exist or any _sha is different (new) new_commits will be false"
+          {
+            echo "latest_commit_sha=$latest_sha"
+            echo "nss_packages_repo_latest_commit_sha=$packages_sha"
+            echo "new_commits=$new_commits"
+          } >> $GITHUB_OUTPUT
 
   build:
     name: Build OpenWrt
     needs: check_commits
-    if: github.event_name == 'workflow_dispatch' || needs.check_commits.outputs.new_commits == 'true' || needs.check_commits.outputs.nss_packages_repo_new_commits == 'true'
+    if: github.event_name == 'workflow_dispatch' || needs.check_commits.outputs.new_commits == 'true'
     runs-on: ubuntu-24.04
     steps:
       - name: Install dependencies
@@ -145,8 +123,6 @@ jobs:
         with:
           name: ipq807x-images
           path: firmware
-      - name: Display structure of downloaded files
-        run: ls -R
       - name: Get current date
         run: echo "RELEASE_DATE=$(date +%F)" >> $GITHUB_ENV
       - name: Create release
@@ -183,7 +159,7 @@ jobs:
       - name: Clean up old releases
         uses: dev-drprasad/delete-older-releases@master
         with:
-          keep_latest: 2
+          keep_latest: 5
           delete_tags: true
         env:
           GITHUB_TOKEN: ${{ github.token }}
