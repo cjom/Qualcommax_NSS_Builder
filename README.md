@@ -20,7 +20,7 @@ The build process is automated using GitHub Actions and consists of the followin
 2. Install the necessary dependencies
 3. Checkout the [remote repository](https://github.com/qosmio/openwrt-ipq) and the current repository
 4. Update and install the OpenWrt feeds
-5. Apply the [NSS status patch](patches/999-add-nss-load-to-status.patch) by [qosmio](https://github.com/qosmio)
+5. Apply the [patches found in ./patches/](patches/)
 6. Configure the firmware image using the provided configuration file
 7. Include SSH hardening configuration and QOL-Enhancements
 8. Build the firmware image
@@ -32,6 +32,18 @@ The build process is automated using GitHub Actions and consists of the followin
 The project utilizes a custom configuration file [`ax3600.config`](ax3600.config) to specify the desired settings for the firmware build. This file includes various options such as target platform, compiler optimizations, package selections, and more.
 
 Additionally, the `uci` commands in the "Quality-of-Life Enhancements" section are used to fine-tune the wireless and network settings for improved performance and functionality. Refer to the [999-QOL_config](https://github.com/JuliusBairaktaris/Qualcommax_NSS_Builder/blob/main/files/etc/uci-defaults/999-QOL_config) for the specific configuration. 
+
+This fork removes:
+- banIP
+- statistics apps
+- MESH support
+- IPv6 support (NordVPN does not support IPv6, this way is one less leak possibility)
+
+Also adds the following packages:
+- **Wireguard VPN**
+- **Policy-Based Routing**
+- **AdBlock Fast**
+
 
 ## SSH Hardening
 
